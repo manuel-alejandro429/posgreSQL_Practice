@@ -117,6 +117,33 @@ FROM(
 	SELECT ROW_NUMBER() OVER( ) AS id_user, * 
 	FROM platzi.alumnos
 )AS a1
-WHERE id_user NOT IN (2,3,6, 1,5,10,15,20);
+WHERE id_user NOT IN (2,3,6, 1,5,10,15,20);1
 
 
+/* Manejando datos tipo date*/
+SELECT EXTRACT(YEAR FROM fecha_incorporacion) AS anio_incorporacion 
+FROM platzi.alumnos;
+
+SELECT DATE_PART('YEAR', fecha_incorporacion) AS anio_incorporacion,
+	   DATE_PART('MONTH', fecha_incorporacion) AS mes_incorporacion,
+	   DATE_PART('DAY', fecha_incorporacion) AS dia_incorporacion
+FROM platzi.alumnos
+WHERE (DATE_PART('YEAR',fecha_incorporacion) < 2018);
+
+
+/* Manejando datos tipo time*/
+
+SELECT EXTRACT(HOUR FROM fecha_incorporacion) AS hora_incorporacion 
+FROM platzi.alumnos;
+
+SELECT EXTRACT(MINUTE FROM fecha_incorporacion) AS minuto_incorporacion 
+FROM platzi.alumnos;
+
+SELECT EXTRACT(SECOND FROM fecha_incorporacion) AS segundo_incorporacion 
+FROM platzi.alumnos;
+
+SELECT DATE_PART('HOUR', fecha_incorporacion) AS hora_incorporacion,
+	   DATE_PART('MINUTE', fecha_incorporacion) AS minuto_incorporacion,
+	   DATE_PART('SECOND', fecha_incorporacion) AS segundo_incorporacion
+FROM platzi.alumnos
+WHERE (DATE_PART('HOUR',fecha_incorporacion) < 20);
