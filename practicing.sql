@@ -92,7 +92,7 @@ OFFSET (
 	FROM platzi.alumnos
 );
 
-/* Seleccionando a partir de un arreglo específuci */
+/* Seleccionando a partir de un arreglo específico */
 
 SELECT *
 FROM(
@@ -128,7 +128,7 @@ SELECT DATE_PART('YEAR', fecha_incorporacion) AS anio_incorporacion,
 	   DATE_PART('MONTH', fecha_incorporacion) AS mes_incorporacion,
 	   DATE_PART('DAY', fecha_incorporacion) AS dia_incorporacion
 FROM platzi.alumnos
-WHERE (DATE_PART('YEAR',fecha_incorporacion) < 2018);
+WHERE (DATE_PART('YEAR',fecha_incorporacion) < 2020);
 
 
 /* Manejando datos tipo time*/
@@ -147,3 +147,118 @@ SELECT DATE_PART('HOUR', fecha_incorporacion) AS hora_incorporacion,
 	   DATE_PART('SECOND', fecha_incorporacion) AS segundo_incorporacion
 FROM platzi.alumnos
 WHERE (DATE_PART('HOUR',fecha_incorporacion) < 20);
+
+
+
+
+/* Lo anterior era un poco reduntante, a continuación se presenta una mejor propues */
+/* Que ademas, trae el resto de información, anteriormente solo se traia el dato de fehca*/
+
+SELECT *
+FROM platzi.alumnos 
+WHERE(
+	DATE_PART('YEAR', fecha_incorporacion) < 2020);
+
+SELECT * 
+FROM(
+	SELECT *, EXTRACT(YEAR FROM fecha_incorporacion) AS yearColumn
+	FROM platzi.alumnos
+) AS alumnos_anio
+WHERE yearColumn < 2020;
+
+
+
+/* FILTRADO POR AÑO Y MES */
+SELECT *
+FROM(
+	SELECT *, DATE_PART('YEAR',fecha_incorporacion) AS yearColumn, 
+	DATE_PART('MONTH',fecha_incorporacion) AS monthColumn
+	FROM platzi.alumnos
+) AS alumnosAnioMonth
+WHERE ( yearColumn = 2018 AND monthColumn = 08 ); 
+
+
+SELECT *
+FROM(
+	SELECT *, EXTRACT(YEAR FROM fecha_incorporacion) AS yearColumn, 
+	EXTRACT(MONTH FROM fecha_incorporacion) AS monthColumn
+	FROM platzi.alumnos
+) AS alumnosAnioMonth
+WHERE ( yearColumn = 2018 AND monthColumn = 5 ); 
+
+
+/* Looking for duplicate records*/ 
+SELECT *
+FROM platzi.alumnos AS ou
+WHERE (
+	SELECT COUNT (*)
+	FROM platzi.alumnos AS inr
+	WHERE ou.id = inr.id
+) > 1;
+
+
+/* Commonly, id is a consecutive number, it doesn't matter whether it be a duplicated value,
+   the id will change. Which is why is suggested to do this process using another column */
+   
+   
+SELECT (
+	platzi.alumnos.nombre,
+	platzi.alumnos.apellido,
+	platzi.alumnos.email,
+	platzi.alumnos.colegiatura,
+	platzi.alumnos.fecha_incorporacion,
+	platzi.alumnos.carrera_id,
+	platzi.alumnos.tutor_id
+	)::text, COUNT(*)
+FROM platzi.alumnos
+GROUP BY 	platzi.alumnos.nombre,
+	platzi.alumnos.apellido,
+	platzi.alumnos.email,
+	platzi.alumnos.colegiatura,
+	platzi.alumnos.fecha_incorporacion,
+	platzi.alumnos.carrera_id,
+	platzi.alumnos.tutor_id
+HAVING COUNT(*) >1;
+
+
+/* By a different way */
+
+SELECT *
+FROM (
+	SELECT id,
+	ROW_NUMBER() OVER(
+		PARTITION BY 
+			nombre,
+			apellido,
+			email,
+			colegiatura,
+		    fecha_incorporacion,
+			carrera_id,
+			tutor_id
+		/*ORDER BY id ASC*/
+	) AS row, *
+	FROM platzi.alumnos
+) AS duplicados
+WHERE duplicados.row > 1;
+
+
+
+DELETE FROM platzi.alumnos
+WHERE id IN (
+    SELECT id
+    FROM (
+        SELECT id,
+            ROW_NUMBER() OVER (
+                PARTITION BY 
+                    nombre,
+                    apellido,
+                    email,
+                    colegiatura,
+                    fecha_incorporacion,
+                    carrera_id,
+                    tutor_id
+            ) AS row
+        FROM platzi.alumnos
+    ) AS subquery
+    WHERE subquery.row = 2
+);
