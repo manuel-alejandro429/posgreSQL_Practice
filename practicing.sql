@@ -248,17 +248,117 @@ WHERE id IN (
     SELECT id
     FROM (
         SELECT id,
-            ROW_NUMBER() OVER (
-                PARTITION BY 
-                    nombre,
-                    apellido,
-                    email,
-                    colegiatura,
-                    fecha_incorporacion,
-                    carrera_id,
-                    tutor_id
-            ) AS row
+        ROW_NUMBER() OVER (
+        	PARTITION BY 
+            	nombre,
+                apellido,
+                email,
+                colegiatura,
+                fecha_incorporacion,
+                carrera_id,
+                tutor_id
+        ) AS duplicados
         FROM platzi.alumnos
     ) AS subquery
-    WHERE subquery.row = 2
+    WHERE subquery.duplicados > 1
 );
+
+SELECT*
+FROM platzi.alumnos
+WHERE tutor_id BETWEEN 1 AND 10;
+
+SELECT int4range(1, 20) @>3; /* @>3 it means "is 3 in the range from 1 to 20 ? "*/
+
+SELECT numrange(11.1, 20.9) && numrange(20.0, 30.0);
+
+SELECT UPPER(int8range(15,25));
+
+SELECT LOWER(int8range(15,25));
+
+SELECT int4range(10,20) * int4range(15,25);
+
+SELECT ISEMPTY(numrange(30,100));
+
+
+SELECT *
+FROM platzi.alumnos
+WHERE(
+	int4range(10,20) @> tutor_id
+);
+
+
+SELECT *
+FROM platzi.alumnos
+WHERE( tutor_id = carrera_id );
+
+SELECT int8range(MIN(carrera_id),MAX(carrera_id)) *
+	   int8range(MIN(tutor_id),MAX(tutor_id))
+FROM platzi.alumnos;
+
+
+SELECT carrera_id, MAX(fecha_incorporacion)
+FROM platzi.alumnos
+GROUP BY carrera_id
+ORDER BY carrera_id  DESC; 
+
+
+SELECT *
+FROM platzi.alumnos
+WHERE id IN (
+	SELECT id
+	FROM platzi.alumnos
+	WHERE (carrera_id, fecha_incorporacion) IN (
+		SELECT carrera_id, MAX(fecha_incorporacion)
+		FROM platzi.alumnos
+		GROUP BY carrera_id
+	) 
+);
+
+SELECT * 
+FROM platzi.alumnos
+ORDER BY nombre
+LIMIT 1;
+
+SELECT tutor_id, MIN(nombre)
+FROM platzi.alumnos
+GROUP BY tutor_id
+ORDER BY tutor_id;
+
+
+SELECT a.nombre,
+	   a.apellido,
+	   t.nombre,
+	   t.apellido
+FROM platzi.alumnos AS a
+INNER JOIN platzi.alumnos AS t ON a.tutor_id = t.id;
+
+
+SELECT CONCAT(a.nombre,' ', a.apellido) AS alumno,
+	   CONCAT( t.nombre,' ',  t.apellido) AS tutor
+FROM platzi.alumnos AS a
+INNER JOIN platzi.alumnos AS t ON a.tutor_id = t.id;
+
+
+
+SELECT CONCAT( t.nombre,' ',  t.apellido) AS tutor,	
+	   COUNT(*) AS alumnos_por_tutor
+FROM platzi.alumnos AS a
+INNER JOIN platzi.alumnos AS t ON a.tutor_id = t.id
+GROUP BY tutor
+ORDER BY alumnos_por_tutor DESC
+LIMIT 10;
+
+
+SELECT AVG(alumnos_por_tutor) AS alumnosPorTutor
+FROM (
+	SELECT CONCAT( t.nombre,' ',  t.apellido) AS tutor,	
+		   COUNT(*) AS alumnos_por_tutor
+	FROM platzi.alumnos AS a
+	INNER JOIN platzi.alumnos AS t ON a.tutor_id = t.id
+	GROUP BY tutor
+) AS alumnosTutor;
+
+
+
+
+
