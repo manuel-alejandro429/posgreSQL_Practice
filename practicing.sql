@@ -436,7 +436,66 @@ FROM platzi.alumnos AS a
 	FULL OUTER JOIN platzi.carreras AS c
 	ON a.carrera_id = c.id
 WHERE (a.carrera_id IS NULL ) OR (c.id IS NULL)
-ORDER BY c.id; 
+ORDER BY c.id;
+
+
+/* Using lpad and rpad */
+/* Is use to fulfill the left site of an N string array in order to 
+   obtain the desired lenght*/ 
+
+SELECT lpad('SQL', 5 ,'*');
+
+SELECT lpad( '*', id, '*')
+FROM platzi.alumnos
+WHERE id <10 
+ORDER BY carrera_id;
+
+SELECT lpad('*', CAST(row_id AS int),'*')
+FROM(
+	SELECT ROW_NUMBER() OVER( ORDER BY carrera_id) AS row_id, * 
+	FROM platzi.alumnos
+) AS alumosRowId
+WHERE row_id <= 5
+ORDER BY carrera_id;
+
+
+SELECT lpad('x', CAST(row_id AS int),'*')
+FROM(
+	SELECT ROW_NUMBER() OVER() AS row_id, * 
+	FROM platzi.alumnos
+) AS alumosRowId
+WHERE row_id <= 5
+ORDER BY row_id;
+
+SELECT rpad('x', CAST(row_id AS int),'*')
+FROM(
+	SELECT ROW_NUMBER() OVER() AS row_id, * 
+	FROM platzi.alumnos
+) AS alumosRowId
+WHERE row_id <= 5
+ORDER BY row_id;
+
+SELECT *
+FROM generate_series(1.1,4,1.3);
+
+
+SELECT current_date + s.a AS dates
+FROM generate_series(0,14,7) AS s(a);
+/*En la anterior sentencia se nombra como "s" a la tabla 
+  generada por generate_series y ademas se determina una de sus columnas
+  como "a"*/ 
   
- 
- 
+SELECT a.id,
+	   a.nombre,
+	   a.apellido,
+	   a.carrera_id,
+	   s.a
+FROM platzi.alumnos AS a
+	INNER JOIN generate_series(0,10) AS s(a)
+	ON s.a = a.carrera_id
+ORDER BY a.carrera_id;
+
+SELECT lpad('x', rango.a, '*')
+FROM generate_series(0, 10) AS rango(a);
+
+
