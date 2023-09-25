@@ -60,7 +60,7 @@ WHERE colegiatura = (
 	SELECT DISTINCT colegiatura
 	FROM platzi.alumnos
 	WHERE tutor_id =  20
-	ORDER BY colegiatura DESC
+ 	ORDER BY colegiatura DESC
 	LIMIT 1 OFFSET 1
 );
 
@@ -117,7 +117,7 @@ FROM(
 	SELECT ROW_NUMBER() OVER( ) AS id_user, * 
 	FROM platzi.alumnos
 )AS a1
-WHERE id_user NOT IN (2,3,6, 1,5,10,15,20);1
+WHERE id_user NOT IN (2,3,6, 1,5,10,15,20);
 
 
 /* Manejando datos tipo date*/
@@ -151,7 +151,7 @@ WHERE (DATE_PART('HOUR',fecha_incorporacion) < 20);
 
 
 
-/* Lo anterior era un poco reduntante, a continuación se presenta una mejor propues */
+/* Lo anterior era un poco reduntante, a continuación se presenta una mejor propuesta */
 /* Que ademas, trae el resto de información, anteriormente solo se traia el dato de fehca*/
 
 SELECT *
@@ -198,7 +198,7 @@ WHERE (
 
 
 /* Commonly, id is a consecutive number, it doesn't matter whether it be a duplicated value,
-   the id will change. Which is why is suggested to do this process using another column */
+   the id will change. Which is why, is suggested to do it  using another column */
    
    
 SELECT (
