@@ -498,4 +498,48 @@ ORDER BY a.carrera_id;
 SELECT lpad('x', rango.a, '*')
 FROM generate_series(0, 10) AS rango(a);
 
+/*Hace el calculo basado en cada partición, en este caso
+  particiones a partir de carrera_id*/
+SELECT *, AVG(colegiatura) OVER (PARTITION BY carrera_id)
+FROM platzi.alumnos;
 
+/* Sin en la window function no le determinamos una partición como en la anterior,
+   hara la operación (En este caso Average) tomando en cuenta TODA la tabla*/
+SELECT *, AVG(colegiatura) OVER ()
+FROM platzi.alumnos;
+
+SELECT *, SUM(colegiatura) OVER (ORDER  BY colegiatura)
+FROM platzi.alumnos;
+
+SELECT *
+FROM (
+	SELECT *, RANK() OVER (PARTITION BY carrera_id ORDER BY colegiatura DESC) AS brand_rank 
+	FROM platzi.alumnos
+)AS rnaked_colegiaturas_por_carrera
+WHERE brand_rank  < 3
+ORDER BY brand_rank;
+
+/* Main Window Functions*/
+
+SELECT ROW_NUMBER() OVER( ORDER BY fecha_incorporacion) AS row_id, * 
+FROM platzi.alumnos;
+
+/*The first value in the partition*/
+
+SELECT FIRST_VALUE(COLEGIATURA) over(PARTITION BY carrera_id) AS ultima_colegiatura, *
+FROM platzi.alumnos;
+
+/*The final value in the partition*/
+SELECT LAST_VALUE(COLEGIATURA) over(PARTITION BY carrera_id) AS ultima_colegiatura, *
+FROM platzi.alumnos;
+
+/*The N value in the partition*/
+SELECT NTH_VALUE(COLEGIATURA, 3) over(PARTITION BY carrera_id) AS ultima_colegiatura, *
+FROM platzi.alumnos;
+
+SELECT *,
+		PERCENT_RANK() OVER(PARTITION BY carrera_id ORDER BY colegiatura DESC) AS colegiatura_rank
+FROM platzi.alumnos
+ORDER BY carrera_id, colegiatura_Rank;
+
+	
